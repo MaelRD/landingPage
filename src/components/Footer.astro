@@ -1,0 +1,123 @@
+---
+import Icon from './ui/Icon.astro';
+import Logo from './ui/Logo.astro';
+import { SITE } from '@/config/site';
+import { whatsappUrl } from '@/lib/whatsapp';
+
+interface Props {
+  description: string;
+}
+
+const { description } = Astro.props;
+const { contact } = SITE;
+const year = new Date().getFullYear();
+
+const linkClass = 'rounded text-muted transition-colors hover:text-ink';
+---
+
+<footer class="border-t border-ink/8 bg-white">
+  <div data-stagger class="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr_1fr] lg:gap-12 lg:py-20">
+    <div data-animate class="sm:col-span-2 lg:col-span-1">
+      <Logo />
+      <p class="mt-5 max-w-xs text-[0.95rem] leading-relaxed text-muted">{description}</p>
+      <ul class="mt-6 flex gap-2" aria-label="Redes sociales">
+        {
+          SITE.social.map((social) => (
+            <li>
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener"
+                class="grid size-11 place-items-center rounded-full bg-canvas text-brand-800 ring-1 ring-ink/8 transition-colors hover:bg-brand-900 hover:text-white"
+              >
+                <Icon name={social.icon} size={19} label={`${social.label} (se abre en una pestaña nueva)`} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <nav data-animate aria-label="Pie de página">
+      <h2 class="text-sm font-semibold text-ink">Navegación</h2>
+      <ul class="mt-4 space-y-3 text-[0.95rem]">
+        {
+          SITE.nav.map((link) => (
+            <li>
+              <a href={link.href} class={linkClass}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div data-animate>
+      <h2 class="text-sm font-semibold text-ink">Contacto</h2>
+      <address class="mt-4 space-y-3 text-[0.95rem] not-italic">
+        <p>
+          <a href={contact.mapsUrl} target="_blank" rel="noopener" class={linkClass}>
+            {contact.address.street}<br />
+            {contact.address.locality}, {contact.address.region}, C.P. {contact.address.postalCode}
+            <span class="sr-only">(se abre en una pestaña nueva)</span>
+          </a>
+        </p>
+        <p><a href={`tel:${contact.phone}`} class={linkClass}>Tel. {contact.phoneDisplay}</a></p>
+        <p>
+          <a href={whatsappUrl()} target="_blank" rel="noopener" class={linkClass}>
+            WhatsApp {contact.phoneDisplay}<span class="sr-only"> (se abre en una pestaña nueva)</span>
+          </a>
+        </p>
+        <p><a href={`mailto:${contact.email}`} class:list={[linkClass, 'break-all']}>{contact.email}</a></p>
+      </address>
+    </div>
+
+    <div data-animate>
+      <h2 class="text-sm font-semibold text-ink">Horarios</h2>
+      <dl class="mt-4 space-y-3 text-[0.95rem]">
+        {
+          SITE.hours.map((h) => (
+            <div>
+              <dt class="text-muted">{h.label}</dt>
+              <dd class="font-medium text-ink tabular-nums">
+                {h.opens} – {h.closes}
+              </dd>
+            </div>
+          ))
+        }
+        {
+          SITE.closedDays && (
+            <div>
+              <dt class="text-muted">{SITE.closedDays}</dt>
+              <dd class="font-medium text-ink">Cerrado</dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+  </div>
+
+  <!-- Firma tipográfica (decorativa, en SVG para que escale al ancho exacto) -->
+  <div class="container-page overflow-hidden" aria-hidden="true">
+    <svg data-animate viewBox="0 0 1000 170" class="block w-full translate-y-[14%] fill-brand-900/[0.07]">
+      <text
+        x="500"
+        y="150"
+        text-anchor="middle"
+        textLength="990"
+        lengthAdjust="spacingAndGlyphs"
+        class="font-display text-[190px] font-extrabold tracking-[-0.05em]">{SITE.name}</text
+      >
+    </svg>
+  </div>
+
+  <div class="border-t border-ink/8">
+    <div
+      class="container-page flex flex-col gap-3 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {SITE.legalName}. Todos los derechos reservados.</p>
+      <a href="/aviso-de-privacidad" class={linkClass}>Aviso de privacidad</a>
+    </div>
+  </div>
+</footer>

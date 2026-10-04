@@ -1,0 +1,64 @@
+---
+/**
+ * Galería editorial en zigzag (8|4 · 5|7) con parallax sutil.
+ * En móvil se convierte en un carrusel deslizable de fotos verticales.
+ */
+import Media from './ui/Media.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import type { GalleryItem, SectionCopy } from '@/types';
+
+interface Props extends SectionCopy {
+  items: GalleryItem[];
+}
+
+const { items, ...heading } = Astro.props;
+
+const layout = ['lg:col-span-8', 'lg:col-span-4', 'lg:col-span-5', 'lg:col-span-7'];
+const sizes = ['(min-width: 1024px) 66vw', '(min-width: 1024px) 33vw', '(min-width: 1024px) 42vw', '(min-width: 1024px) 58vw'];
+---
+
+<section aria-labelledby="galeria-title" class="section-y overflow-hidden">
+  <div class="container-page">
+    <SectionHeading id="galeria-title" {...heading} />
+
+    <div
+      class="scrollbar-none -mx-(--gutter) mt-12 snap-x snap-mandatory scroll-px-(--gutter) overflow-x-auto px-(--gutter) pb-2 sm:mx-0 sm:overflow-visible sm:px-0 lg:mt-16"
+      role="region"
+      aria-label="Fotos de la clínica (desliza para ver más)"
+      tabindex="0"
+    >
+      <ul data-stagger class="flex gap-3 sm:grid sm:grid-cols-2 sm:gap-4 lg:grid-cols-12 lg:gap-5">
+        {
+          items.map((item, i) => (
+            <li
+              data-animate="clip"
+              class:list={[
+                'group relative aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-4xl bg-sand-200 sm:aspect-[4/3] sm:w-auto lg:aspect-auto lg:h-[28rem]',
+                layout[i % layout.length],
+              ]}
+            >
+              <figure class="size-full">
+                <div data-parallax class="size-full">
+                  <Media
+                    label={item.title}
+                    icon={item.icon}
+                    tone={item.tone}
+                    image={item.image}
+                    alt={item.alt}
+                    sizes={`${sizes[i % sizes.length]}, (min-width: 640px) 50vw, 80vw`}
+                    class="transition-transform duration-1000 ease-(--ease-out-soft) group-hover:scale-[1.04]"
+                  />
+                </div>
+                <div class="absolute inset-0 bg-linear-to-t from-brand-950/70 via-transparent to-transparent" aria-hidden="true" />
+                <figcaption class="absolute inset-x-5 bottom-5 text-white sm:inset-x-6 sm:bottom-6">
+                  <span class="block font-display text-2xl font-bold tracking-[-0.03em]">{item.title}</span>
+                  <span class="mt-1 block text-sm text-white/80">{item.caption}</span>
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Button from '@/components/ui/Button.astro';
+import Logo from '@/components/ui/Logo.astro';
+import { SITE } from '@/config/site';
+---
+
+<Layout title={`Página no encontrada · ${SITE.name}`} noindex>
+  <main id="contenido" class="container-page grid min-h-dvh place-items-center py-16 text-center">
+    <div class="max-w-md">
+      <a href="/" aria-label={`${SITE.name}, ir al inicio`}><Logo /></a>
+      <p class="mt-12 font-display text-7xl font-extrabold text-brand-200">404</p>
+      <h1 class="mt-4 font-display text-3xl font-bold text-ink">No encontramos esta página</h1>
+      <p class="mt-3 text-muted">Es posible que el enlace haya cambiado. Vuelve al inicio para agendar tu cita.</p>
+      <Button href="/" class="mt-8" arrow>Volver al inicio</Button>
+    </div>
+  </main>
+</Layout>

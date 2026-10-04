@@ -1,0 +1,75 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+type Variant = 'primary' | 'secondary' | 'inverse' | 'whatsapp';
+type Size = 'sm' | 'md' | 'lg';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'type'> {
+  /** Si se define, se renderiza un <a>; si no, un <button>. */
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: Variant;
+  size?: Size;
+  /** Icono antes del texto. */
+  icon?: IconName;
+  /** Muestra una flecha animada al final. */
+  arrow?: boolean;
+  /** Abre en una pestaña nueva y lo anuncia a lectores de pantalla. */
+  external?: boolean;
+  class?: string;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  icon,
+  arrow = false,
+  external = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const base =
+  'group relative inline-flex items-center justify-center gap-2.5 rounded-full font-semibold tracking-[-0.01em] text-center select-none ' +
+  'transition-[background-color,color,box-shadow,translate,scale] duration-200 ease-(--ease-out-soft) ' +
+  'hover:-translate-y-px active:translate-y-0 active:scale-[0.98] focus-visible:outline-offset-4 disabled:pointer-events-none disabled:opacity-60';
+
+const variants: Record<Variant, string> = {
+  primary: 'btn-shine bg-brand-900 text-white shadow-soft hover:bg-brand-800 hover:shadow-lift',
+  secondary: 'bg-white text-ink ring-1 ring-inset ring-ink/12 shadow-soft hover:ring-ink/25 hover:shadow-lift',
+  inverse: 'btn-shine bg-white text-brand-950 shadow-soft hover:bg-accent-50 focus-visible:outline-white',
+  whatsapp: 'btn-shine bg-accent-600 text-white shadow-soft hover:bg-accent-700 hover:shadow-lift',
+};
+
+const sizes: Record<Size, string> = {
+  sm: 'min-h-10 px-4 text-sm',
+  md: 'min-h-12 px-5 text-[0.95rem] sm:px-6',
+  lg: 'min-h-14 px-5 text-base sm:px-7',
+};
+
+const classes = [base, variants[variant], sizes[size], className];
+const iconSize = size === 'lg' ? 20 : 18;
+const Tag = href ? 'a' : 'button';
+const linkProps = href
+  ? { href, ...(external && { target: '_blank', rel: 'noopener' }) }
+  : { type };
+---
+
+<Tag class:list={classes} {...linkProps} {...rest}>
+  {icon && <Icon name={icon} size={iconSize} />}
+  <span><slot /></span>
+  {
+    arrow && (
+      <Icon
+        name="arrow-right"
+        size={iconSize - 2}
+        class="transition-transform duration-200 group-hover:translate-x-0.5"
+      />
+    )
+  }
+  {external && <span class="sr-only"> (se abre en una pestaña nueva)</span>}
+</Tag>

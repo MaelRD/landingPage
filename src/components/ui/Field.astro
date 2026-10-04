@@ -1,0 +1,25 @@
+---
+/**
+ * Envoltorio de campo: etiqueta, control (slot), ayuda y mensaje de error.
+ * El control debe usar `id` y `aria-describedby` = `${id}-error` (y `${id}-hint` si hay ayuda).
+ */
+interface Props {
+  id: string;
+  label: string;
+  optional?: boolean;
+  hint?: string;
+  class?: string;
+}
+
+const { id, label, optional = false, hint, class: className } = Astro.props;
+---
+
+<div class:list={['flex flex-col', className]} data-field>
+  <label for={id} class="mb-2 flex items-baseline justify-between gap-2 text-sm font-semibold text-ink">
+    {label}
+    {optional && <span class="text-xs font-normal text-muted">Opcional</span>}
+  </label>
+  <slot />
+  {hint && <p id={`${id}-hint`} class="mt-1.5 text-xs text-muted">{hint}</p>}
+  <p id={`${id}-error`} class="mt-1.5 hidden items-center gap-1.5 text-sm font-medium text-red-700" data-error></p>
+</div>

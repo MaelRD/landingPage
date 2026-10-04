@@ -1,0 +1,109 @@
+---
+/**
+ * Testimonios: el primero se muestra como cita destacada y el resto como tarjetas compactas.
+ */
+import Icon from './ui/Icon.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import type { SectionCopy, Testimonial } from '@/types';
+
+interface Props extends SectionCopy {
+  items: Testimonial[];
+  /** Muestra un aviso visible de que los testimonios son de demostración. */
+  isDemo?: boolean;
+}
+
+const { items, isDemo = false, ...heading } = Astro.props;
+const [featured, ...rest] = items;
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+---
+
+<section id="opiniones" aria-labelledby="opiniones-title" class="section-y bg-white">
+  <div class="container-page">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <SectionHeading id="opiniones-title" {...heading} />
+      {
+        isDemo && (
+          <p class="inline-flex items-start gap-2 self-start rounded-2xl bg-sand-100 px-4 py-3 text-sm text-ink/80 ring-1 ring-sand-200 lg:max-w-xs lg:self-end">
+            <Icon name="message-text" size={18} class="mt-0.5 text-brand-600" />
+            <span>
+              <strong class="font-semibold text-ink">Testimonios de ejemplo.</strong> Contenido de demostración, no
+              corresponde a pacientes reales.
+            </span>
+          </p>
+        )
+      }
+    </div>
+
+    <div class="mt-12 grid gap-4 lg:mt-16 lg:grid-cols-[1.35fr_1fr] lg:gap-5">
+      {
+        featured && (
+          <figure data-animate="scale" class="grain relative flex flex-col overflow-hidden rounded-4xl bg-brand-950 p-7 text-white sm:p-10 lg:p-12">
+            <div aria-hidden="true" class="absolute -top-24 -right-24 size-80 rounded-full bg-accent-500/20 blur-3xl" />
+            <span aria-hidden="true" class="font-display text-[7rem] leading-[0.75] font-bold text-accent-300/80 sm:text-[8rem]">
+              “
+            </span>
+            <blockquote class="relative mt-4 flex-1">
+              <p class="font-display text-[clamp(1.35rem,1rem+1.4vw,2.1rem)] leading-[1.3] font-medium tracking-[-0.025em]">
+                {featured.quote}
+              </p>
+            </blockquote>
+            <figcaption class="relative mt-10 flex flex-wrap items-center gap-4">
+              <span class="grid size-12 place-items-center rounded-full bg-accent-300 font-semibold text-brand-950" aria-hidden="true">
+                {initials(featured.name)}
+              </span>
+              <span class="flex-1">
+                <span class="block font-semibold">{featured.name}</span>
+                <span class="block text-sm text-white/65">{featured.service}</span>
+              </span>
+              <span class="flex w-full gap-0.5 text-amber-400 sm:w-auto" role="img" aria-label={`${featured.rating} de 5 estrellas`}>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <Icon name="star" size={18} class={i < featured.rating ? undefined : 'text-white/20'} />
+                ))}
+              </span>
+            </figcaption>
+          </figure>
+        )
+      }
+
+      <ul data-stagger class="grid gap-4 lg:gap-5">
+        {
+          rest.map((item) => (
+            <li data-animate="right">
+              <figure class="flex h-full flex-col rounded-4xl bg-canvas p-6 ring-1 ring-ink/6 sm:p-7">
+                <div class="flex items-center justify-between gap-4">
+                  <span class="flex items-center gap-3">
+                    <span
+                      class="grid size-10 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-semibold text-brand-800"
+                      aria-hidden="true"
+                    >
+                      {initials(item.name)}
+                    </span>
+                    <span>
+                      <span class="block text-sm font-semibold text-ink">{item.name}</span>
+                      <span class="block text-xs text-muted">{item.service}</span>
+                    </span>
+                  </span>
+                  <span class="flex gap-0.5 text-amber-500" role="img" aria-label={`${item.rating} de 5 estrellas`}>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Icon name="star" size={15} class={i < item.rating ? undefined : 'text-ink/15'} />
+                    ))}
+                  </span>
+                </div>
+                <blockquote class="mt-4 text-[0.97rem] leading-relaxed text-ink/85">
+                  <p>“{item.quote}”</p>
+                </blockquote>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

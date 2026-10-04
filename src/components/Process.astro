@@ -1,0 +1,178 @@
+---
+/**
+ * Proceso en pasos + teléfono con un chat de ejemplo que avanza al recorrer los pasos.
+ * Sin JavaScript (o con movimiento reducido) el chat se muestra completo.
+ */
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import type { ChatMessage, Feature, SectionCopy } from '@/types';
+
+interface Props extends SectionCopy {
+  steps: Feature[];
+  chat: ChatMessage[];
+  businessName: string;
+  cta: { label: string; href: string };
+  note?: string;
+}
+
+const { steps, chat, businessName, cta, note, ...heading } = Astro.props;
+---
+
+<section
+  aria-labelledby="proceso-title"
+  class="grain section-y relative overflow-clip bg-brand-950 text-white"
+  data-process
+  data-step="1"
+>
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+    <div class="absolute -top-40 -left-40 size-[36rem] rounded-full bg-brand-600/30 blur-3xl"></div>
+    <div class="absolute -right-40 bottom-0 size-[32rem] rounded-full bg-accent-500/15 blur-3xl"></div>
+  </div>
+
+  <div class="container-page">
+    <SectionHeading id="proceso-title" tone="dark" {...heading} />
+  </div>
+
+  <div class="container-page mt-12 grid gap-12 lg:mt-16 lg:grid-cols-[1fr_auto] lg:gap-20 xl:gap-28">
+    <div>
+      <ol data-stagger>
+        {
+          steps.map((step, i) => (
+            <li
+              data-step-item={i + 1}
+              class="group relative flex gap-5 border-t border-white/10 py-7 transition-opacity duration-500 last:border-b lg:py-9 js:lg:opacity-40 js:lg:data-current:opacity-100"
+            >
+              <span
+                data-animate="fade"
+                class="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/8 text-accent-300 ring-1 ring-white/15 lg:size-14"
+              >
+                <Icon name={step.icon} size={22} />
+              </span>
+              <div class="flex-1" data-animate>
+                <h3 class="flex items-center gap-2.5 text-xl font-semibold lg:text-2xl">
+                  {step.title}
+                </h3>
+                <p class="mt-2 max-w-md leading-relaxed text-brand-100/75">{step.description}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+        <Button href={cta.href} external variant="inverse" size="lg" icon="whatsapp" class="w-full sm:w-auto">
+          {cta.label}
+        </Button>
+        {note && <p class="text-sm text-brand-100/70">{note}</p>}
+      </div>
+    </div>
+
+    <!-- Teléfono con chat ilustrativo -->
+    <div aria-hidden="true" data-phone class="order-first mx-auto w-full max-w-[19rem] lg:order-none lg:sticky lg:top-28 lg:w-[20rem] lg:max-w-none lg:self-start">
+      <div data-animate="scale" class="rounded-[2.75rem] bg-black p-2.5 shadow-[0_40px_80px_-20px_rgb(0_0_0/0.6)] ring-1 ring-white/15">
+        <div class="relative flex h-[27rem] flex-col lg:h-[34rem] overflow-hidden rounded-[2.25rem] bg-[#efe9df]">
+          <!-- Cabecera -->
+          <div class="flex items-center gap-3 bg-brand-900 px-4 pt-9 pb-3 text-white">
+            <span class="absolute top-2.5 left-1/2 h-5 w-20 -translate-x-1/2 rounded-full bg-black"></span>
+            <span class="grid size-9 place-items-center rounded-full bg-white text-brand-900">
+              <Icon name="tooth" size={18} />
+            </span>
+            <span class="leading-tight">
+              <span class="block text-sm font-semibold">{businessName}</span>
+              <span class="block text-[0.7rem] text-white/70">en línea</span>
+            </span>
+          </div>
+          <!-- Mensajes -->
+          <div class="flex flex-1 flex-col justify-end gap-2 p-3 text-[0.8rem] leading-snug text-ink">
+            <p class="mx-auto mb-1 rounded-md bg-white/70 px-2 py-0.5 text-[0.65rem] text-muted">Hoy</p>
+            {
+              chat.map((message) => (
+                <p
+                  data-msg-step={message.step}
+                  class:list={[
+                    'chat-msg w-fit max-w-[82%] rounded-xl px-3 py-2 shadow-[0_1px_1px_rgb(0_0_0/0.08)]',
+                    message.from === 'patient' ? 'ml-auto rounded-tr-sm bg-[#d9fdd3]' : 'rounded-tl-sm bg-white',
+                  ]}
+                >
+                  {message.text}
+                </p>
+              ))
+            }
+          </div>
+          <!-- Barra de escritura -->
+          <div class="flex items-center gap-2 bg-[#efe9df] px-3 pb-4">
+            <span class="flex-1 rounded-full bg-white px-4 py-2 text-[0.75rem] text-muted">Escribe un mensaje</span>
+            <span class="grid size-9 place-items-center rounded-full bg-accent-600 text-white">
+              <Icon name="arrow-right" size={16} />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Con JS, cada mensaje aparece cuando su paso está activo; @starting-style anima su entrada. */
+  :global(.js) [data-process] .chat-msg {
+    transition:
+      opacity 0.45s var(--ease-out-soft),
+      translate 0.45s var(--ease-out-soft),
+      display 0.45s allow-discrete;
+  }
+  :global(.js) [data-process] .chat-msg[data-hidden] {
+    display: none;
+    opacity: 0;
+  }
+  @starting-style {
+    :global(.js) [data-process] .chat-msg {
+      opacity: 0;
+      translate: 0 12px;
+    }
+  }
+</style>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-process]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (section && !reduce) {
+    const items = [...section.querySelectorAll<HTMLElement>('[data-step-item]')];
+    const messages = [...section.querySelectorAll<HTMLElement>('[data-msg-step]')];
+
+    const setStep = (step: number) => {
+      items.forEach((item) => item.toggleAttribute('data-current', Number(item.dataset.stepItem) === step));
+      messages.forEach((msg) => msg.toggleAttribute('data-hidden', Number(msg.dataset.msgStep) > step));
+    };
+
+    setStep(1);
+
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      // Escritorio: el paso activo es el que cruza la franja central de la pantalla.
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) setStep(Number((entry.target as HTMLElement).dataset.stepItem));
+          }
+        },
+        { rootMargin: '-45% 0px -45% 0px' },
+      );
+      items.forEach((item) => observer.observe(item));
+    } else {
+      // Móvil: el teléfono va antes de los pasos, así que la conversación se reproduce sola al verlo.
+      const phone = section.querySelector('[data-phone]');
+      if (phone) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            items.forEach((_, i) => setTimeout(() => setStep(i + 1), i * 900));
+          },
+          { threshold: 0.5 },
+        );
+        observer.observe(phone);
+      }
+    }
+  }
+</script>

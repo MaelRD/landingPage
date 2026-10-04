@@ -1,0 +1,110 @@
+---
+/**
+ * Beneficios en cuadrícula bento: mezcla foto, texto y un dato destacado.
+ * Los tamaños se asignan por posición (ver comentario en data/content.ts).
+ */
+import { Image } from 'astro:assets';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import type { Benefit } from '@/data/content';
+import type { SectionCopy } from '@/types';
+
+interface Props extends SectionCopy {
+  items: Benefit[];
+  cta: { label: string; href: string };
+}
+
+const { items, cta, ...heading } = Astro.props;
+
+const layout = [
+  'sm:col-span-2 lg:row-span-2 min-h-[26rem] lg:min-h-0',
+  '',
+  '',
+  'min-h-[22rem] lg:min-h-0',
+  '',
+  'sm:col-span-2 lg:col-span-4',
+];
+---
+
+<section id="nosotros" aria-labelledby="nosotros-title" class="section-y bg-white">
+  <div class="container-page">
+    <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <SectionHeading id="nosotros-title" {...heading} />
+      <div class="shrink-0">
+        <Button href={cta.href} external icon="whatsapp" class="w-full sm:w-auto">{cta.label}</Button>
+      </div>
+    </div>
+
+    <ul data-stagger class="mt-12 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:auto-rows-[minmax(15rem,auto)]">
+      {
+        items.map((item, i) => {
+          const isLast = i === items.length - 1;
+          return (
+            <li data-animate={item.image ? 'clip' : 'up'} class:list={['relative', layout[i] ?? '']}>
+              {item.image ? (
+                <article class="group relative flex h-full flex-col justify-end overflow-hidden rounded-4xl bg-brand-900 p-6 text-white sm:p-8">
+                  <Image
+                    src={item.image}
+                    alt={item.imageAlt ?? ''}
+                    widths={[480, 800, 1200]}
+                    sizes={i === 0 ? '(min-width: 1024px) 50vw, 100vw' : '(min-width: 1024px) 25vw, 100vw'}
+                    class="absolute inset-0 size-full object-cover transition-transform duration-700 ease-(--ease-out-soft) group-hover:scale-105"
+                  />
+                  <div class="absolute inset-0 bg-linear-to-t from-brand-950/90 via-brand-950/30 to-transparent" aria-hidden="true" />
+                  <div class="relative">
+                    <span class="grid size-11 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-md">
+                      <Icon name={item.icon} size={22} />
+                    </span>
+                    <h3 class:list={['mt-4 font-display font-bold tracking-[-0.03em]', i === 0 ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+                      {item.title}
+                    </h3>
+                    <p class:list={['mt-2 leading-relaxed text-white/80', i === 0 ? 'max-w-md sm:text-lg' : 'text-[0.95rem]']}>
+                      {item.description}
+                    </p>
+                  </div>
+                </article>
+              ) : item.stat ? (
+                <article class="grain relative flex h-full flex-col overflow-hidden rounded-4xl bg-brand-950 p-6 text-white sm:p-8">
+                  <div aria-hidden="true" class="absolute -right-16 -bottom-20 size-56 rounded-full bg-accent-500/25 blur-3xl" />
+                  <Icon name={item.icon} size={24} class="relative text-accent-300" />
+                  <p class="relative mt-auto pt-8 font-display text-5xl font-bold tracking-[-0.04em] text-accent-200">{item.stat}</p>
+                  <p class="relative mt-1 text-sm text-white/70">meses sin intereses</p>
+                  <h3 class="relative mt-5 text-lg font-semibold">{item.title}</h3>
+                  <p class="relative mt-1.5 text-[0.95rem] leading-relaxed text-brand-100/75">{item.description}</p>
+                </article>
+              ) : (
+                <article
+                  class:list={[
+                    'flex h-full gap-6 rounded-4xl bg-canvas p-6 ring-1 ring-ink/6 sm:p-8',
+                    isLast ? 'flex-col sm:flex-row sm:items-center' : 'flex-col',
+                  ]}
+                >
+                  <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-white text-brand-700 shadow-soft ring-1 ring-ink/6">
+                    <Icon name={item.icon} size={24} />
+                  </span>
+                  <div class:list={[!isLast && 'mt-auto', isLast && 'flex-1']}>
+                    <h3 class="text-xl font-semibold tracking-[-0.01em] text-ink">{item.title}</h3>
+                    <p class="mt-2 text-[0.95rem] leading-relaxed text-muted">{item.description}</p>
+                  </div>
+                  {isLast && (
+                    <a
+                      href={cta.href}
+                      target="_blank"
+                      rel="noopener"
+                      class="group inline-flex items-center gap-2 self-start text-sm font-semibold text-brand-700 hover:text-brand-950 sm:self-center"
+                    >
+                      Conócela en tu valoración
+                      <span class="sr-only">(se abre en una pestaña nueva)</span>
+                      <Icon name="arrow-right" size={16} class="transition-transform group-hover:translate-x-1" />
+                    </a>
+                  )}
+                </article>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>

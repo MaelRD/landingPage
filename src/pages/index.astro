@@ -1,0 +1,79 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Navbar from '@/components/Navbar.astro';
+import Hero from '@/components/Hero.astro';
+import TrustBar from '@/components/TrustBar.astro';
+import Treatments from '@/components/Treatments.astro';
+import Benefits from '@/components/Benefits.astro';
+import Process from '@/components/Process.astro';
+import Gallery from '@/components/Gallery.astro';
+import Testimonials from '@/components/Testimonials.astro';
+import ContactForm from '@/components/ContactForm.astro';
+import FAQ from '@/components/FAQ.astro';
+import FinalCTA from '@/components/FinalCTA.astro';
+import Footer from '@/components/Footer.astro';
+import WhatsAppFloat from '@/components/WhatsAppFloat.astro';
+
+import { SITE } from '@/config/site';
+import { whatsappUrl } from '@/lib/whatsapp';
+import { dentistSchema, faqSchema } from '@/lib/schema';
+import { treatments } from '@/data/treatments';
+import { testimonials, testimonialsAreDemo } from '@/data/testimonials';
+import { faq } from '@/data/faq';
+import {
+  benefits,
+  benefitsSection,
+  contactSection,
+  faqSection,
+  finalCta,
+  footer,
+  gallery,
+  gallerySection,
+  hero,
+  processChat,
+  processSection,
+  processSteps,
+  testimonialsSection,
+  treatmentsSection,
+  trust,
+} from '@/data/content';
+
+const bookingUrl = whatsappUrl(hero.whatsappMessage);
+---
+
+<Layout schema={[dentistSchema(treatments), faqSchema(faq)]}>
+  <Navbar links={SITE.nav} ctaLabel="Agendar cita" ctaHref={bookingUrl} menuNote={SITE.hoursSummary} />
+
+  <main id="contenido" tabindex="-1" class="outline-none">
+    <Hero
+      {...hero}
+      primaryCta={{ label: hero.primaryCta, href: bookingUrl }}
+      secondaryCta={{ label: hero.secondaryCta, href: '#tratamientos' }}
+      businessName={SITE.name}
+      hoursLabel={SITE.hoursSummary}
+    />
+    <TrustBar items={trust} />
+    <Treatments {...treatmentsSection} items={treatments} />
+    <Benefits {...benefitsSection} items={benefits} cta={{ label: benefitsSection.cta, href: bookingUrl }} />
+    <Process
+      {...processSection}
+     
+      steps={processSteps}
+      chat={processChat}
+      businessName={SITE.name}
+      cta={{ label: processSection.cta, href: bookingUrl }}
+    />
+    <Gallery {...gallerySection} items={gallery} />
+    <Testimonials {...testimonialsSection} items={testimonials} isDemo={testimonialsAreDemo} />
+    <ContactForm {...contactSection} services={treatments.map((t) => t.title)} />
+    <FAQ {...faqSection} items={faq} cta={{ label: faqSection.cta, href: whatsappUrl() }} />
+    <FinalCTA
+      {...finalCta}
+      cta={{ label: finalCta.cta, href: whatsappUrl(finalCta.whatsappMessage) }}
+      phone={{ display: SITE.contact.phoneDisplay, href: `tel:${SITE.contact.phone}` }}
+    />
+  </main>
+
+  <Footer description={footer.description} />
+  <WhatsAppFloat href={bookingUrl} label="Agenda tu cita" />
+</Layout>

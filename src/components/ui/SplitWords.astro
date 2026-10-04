@@ -1,0 +1,27 @@
+---
+/**
+ * Divide un texto en palabras enmascaradas para animarlas una a una.
+ * El texto completo debe ir como aria-label en el elemento padre (las palabras se ocultan a lectores).
+ */
+interface Props {
+  text: string;
+  /** 'word' se anima al hacer scroll (data-animate="words"); 'hero-word' al cargar la página. */
+  variant?: 'word' | 'hero-word';
+  /** Índice inicial, para continuar la secuencia tras otro bloque de palabras. */
+  offset?: number;
+}
+
+const { text, variant = 'word', offset = 0 } = Astro.props;
+const words = text.split(/\s+/).filter(Boolean);
+---
+
+{
+  words.map((word, i) => (
+    <Fragment>
+      <span class={variant} aria-hidden="true">
+        <span style={`--w:${i + offset}`}>{word}</span>
+      </span>
+      {i < words.length - 1 && ' '}
+    </Fragment>
+  ))
+}

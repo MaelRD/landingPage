@@ -1,0 +1,57 @@
+---
+import SplitWords from './SplitWords.astro';
+import type { SectionCopy } from '@/types';
+
+interface Props extends SectionCopy {
+  /** id del <h2>, para enlazarlo con aria-labelledby en la sección. */
+  id: string;
+  align?: 'left' | 'center';
+  tone?: 'light' | 'dark';
+  class?: string;
+}
+
+const { id, eyebrow, title, description, align = 'left', tone = 'light', class: className } = Astro.props;
+const isDark = tone === 'dark';
+---
+
+<header
+  class:list={[
+    'max-w-2xl',
+    align === 'center' && 'mx-auto text-center',
+    className,
+  ]}
+>
+  <p
+    data-animate="fade"
+    class:list={[
+      'inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em]',
+      isDark ? 'text-accent-300' : 'text-brand-600',
+    ]}
+  >
+    <span class:list={['h-px w-8', isDark ? 'bg-accent-300/50' : 'bg-brand-400/50']} aria-hidden="true"></span>
+    {eyebrow}
+  </p>
+  <h2
+    id={id}
+    data-animate="words"
+    aria-label={title}
+    class:list={[
+      'mt-5 font-display text-[clamp(1.9rem,1.3rem+2.6vw,3.25rem)] leading-[1.08] font-bold tracking-[-0.035em]',
+      isDark ? 'text-white' : 'text-ink',
+    ]}
+  >
+    <SplitWords text={title} />
+  </h2>
+  {
+    description && (
+      <p
+        data-animate
+        style="--delay: 250ms"
+        class:list={['mt-4 text-base leading-relaxed sm:text-lg', isDark ? 'text-brand-100/80' : 'text-muted']}
+      >
+        {description}
+      </p>
+    )
+  }
+  <slot />
+</header>

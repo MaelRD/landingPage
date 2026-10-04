@@ -1,0 +1,84 @@
+---
+/**
+ * Aviso de privacidad simplificado (plantilla).
+ * Revísalo con un asesor legal y adáptalo a la operación real del negocio antes de publicar.
+ */
+import Layout from '@/layouts/Layout.astro';
+import Footer from '@/components/Footer.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Logo from '@/components/ui/Logo.astro';
+import { SITE } from '@/config/site';
+import { footer } from '@/data/content';
+
+const { contact } = SITE;
+const updated = '3 de octubre de 2026';
+
+const sections = [
+  {
+    title: 'Responsable del tratamiento de tus datos',
+    body: [
+      `${SITE.legalName}, con domicilio en ${contact.address.street}, ${contact.address.locality}, ${contact.address.region}, C.P. ${contact.address.postalCode}, es responsable del uso y protección de tus datos personales.`,
+    ],
+  },
+  {
+    title: 'Datos que recabamos',
+    body: [
+      'Cuando nos contactas por WhatsApp, teléfono o en la clínica podemos solicitar: nombre, número de teléfono, tratamiento de interés, fecha preferida de cita y la información que decidas compartir en tu mensaje.',
+      'El formulario de este sitio no almacena información: únicamente prepara un mensaje que tú decides enviar desde tu propia cuenta de WhatsApp.',
+      'Durante la atención clínica podremos recabar datos de salud, considerados sensibles, que se tratarán con estricta confidencialidad y solo con tu consentimiento expreso.',
+    ],
+  },
+  {
+    title: 'Finalidades',
+    body: [
+      'Usamos tus datos para agendar, confirmar o reprogramar citas; brindarte atención odontológica; dar seguimiento a tu tratamiento y responder tus dudas.',
+      'De forma secundaria, y solo si no te opones, podremos enviarte recordatorios de revisión e información sobre nuestros servicios.',
+    ],
+  },
+  {
+    title: 'Derechos ARCO',
+    body: [
+      `Puedes acceder, rectificar, cancelar u oponerte al uso de tus datos personales, así como revocar tu consentimiento, escribiendo a ${contact.email}. Te responderemos en un plazo máximo de 20 días hábiles.`,
+    ],
+  },
+  {
+    title: 'Cambios a este aviso',
+    body: ['Cualquier modificación a este aviso de privacidad se publicará en esta misma página.'],
+  },
+];
+---
+
+<Layout
+  title={`Aviso de privacidad · ${SITE.name}`}
+  description={`Conoce cómo ${SITE.name} protege y utiliza tus datos personales.`}
+>
+  <header class="border-b border-ink/8 bg-white">
+    <div class="container-page flex h-16 items-center justify-between">
+      <a href="/" aria-label={`${SITE.name}, ir al inicio`} class="-m-1 rounded-xl p-1"><Logo /></a>
+      <a href="/" class="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-muted hover:bg-ink/5 hover:text-ink">
+        <Icon name="arrow-right" size={16} class="rotate-180" />
+        Volver
+      </a>
+    </div>
+  </header>
+
+  <main id="contenido" class="container-page py-16 sm:py-24">
+    <article class="mx-auto max-w-2xl">
+      <h1 class="font-display text-4xl font-bold tracking-[-0.035em] text-ink sm:text-5xl">Aviso de privacidad</h1>
+      <p class="mt-4 text-sm text-muted">Última actualización: {updated}</p>
+
+      {
+        sections.map((section) => (
+          <section class="mt-12">
+            <h2 class="text-xl font-semibold text-ink">{section.title}</h2>
+            {section.body.map((paragraph) => (
+              <p class="mt-4 leading-relaxed text-muted">{paragraph}</p>
+            ))}
+          </section>
+        ))
+      }
+    </article>
+  </main>
+
+  <Footer description={footer.description} />
+</Layout>

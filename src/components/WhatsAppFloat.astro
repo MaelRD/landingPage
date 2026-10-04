@@ -1,0 +1,79 @@
+---
+/**
+ * Botón flotante de WhatsApp.
+ * Aparece después del hero y se oculta mientras el formulario de contacto está en pantalla.
+ * Sin JavaScript, simplemente permanece visible.
+ */
+import Icon from './ui/Icon.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  /** Selector del elemento tras el cual aparece el botón. */
+  showAfter?: string;
+  /** Selectores de elementos que lo ocultan cuando están visibles. */
+  hideOver?: string;
+}
+
+const { href, label, showAfter = '#inicio', hideOver = '#contacto, footer' } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener"
+  data-wa-float
+  data-show-after={showAfter}
+  data-hide-over={hideOver}
+  class="wa-float group fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex size-14 items-center justify-center gap-2.5 rounded-full bg-accent-600 text-white shadow-[0_12px_32px_-8px_rgb(21_132_108/0.6)] ring-4 ring-white/70 transition-[opacity,translate,background-color,visibility] duration-300 ease-(--ease-out-soft) hover:bg-accent-700 sm:size-auto sm:py-3.5 sm:pr-6 sm:pl-5"
+>
+  <span
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -z-10 rounded-full bg-accent-500 motion-safe:animate-halo"
+  ></span>
+  <Icon name="whatsapp" size={26} class="transition-transform duration-300 group-hover:rotate-[-12deg] sm:size-[22px]" />
+  <span class="sr-only sm:not-sr-only sm:text-[0.95rem] sm:font-semibold">{label}</span>
+  <span class="sr-only"> por WhatsApp (se abre en una pestaña nueva)</span>
+</a>
+
+<style>
+  :global(.js) .wa-float:not([data-visible]) {
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 1rem;
+  }
+</style>
+
+<script>
+  const button = document.querySelector<HTMLElement>('[data-wa-float]');
+
+  if (button) {
+    const showAfter = document.querySelector(button.dataset.showAfter ?? '');
+    const hideOver = [...document.querySelectorAll(button.dataset.hideOver ?? '')];
+    const state = { pastStart: !showAfter, overHidden: new Set<Element>() };
+
+    const render = () =>
+      button.toggleAttribute('data-visible', state.pastStart && state.overHidden.size === 0);
+
+    if (showAfter) {
+      new IntersectionObserver(([entry]) => {
+        state.pastStart = !entry.isIntersecting;
+        render();
+      }).observe(showAfter);
+    }
+
+    const hideObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) state.overHidden.add(entry.target);
+          else state.overHidden.delete(entry.target);
+        }
+        render();
+      },
+      { rootMargin: '0px 0px -25% 0px' },
+    );
+    hideOver.forEach((el) => hideObserver.observe(el));
+
+    render();
+  }
+</script>

@@ -1,0 +1,41 @@
+---
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import type { FaqItem, SectionCopy } from '@/types';
+
+interface Props extends SectionCopy {
+  items: FaqItem[];
+  cta: { label: string; href: string };
+}
+
+const { items, cta, ...heading } = Astro.props;
+---
+
+<section id="preguntas-frecuentes" aria-labelledby="faq-title" class="section-y bg-white">
+  <div class="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+    <div class="lg:sticky lg:top-32 lg:self-start">
+      <SectionHeading id="faq-title" {...heading}>
+        <Button href={cta.href} external variant="secondary" icon="whatsapp" class="mt-8 w-full sm:w-auto">
+          {cta.label}
+        </Button>
+      </SectionHeading>
+    </div>
+
+    <div class="border-t border-ink/10" data-stagger>
+      {
+        items.map((item, index) => (
+          <details data-animate class="faq-item group border-b border-ink/10" open={index === 0}>
+            <summary class="flex cursor-pointer items-center justify-between gap-6 rounded-lg py-5 text-left text-[1.05rem] font-semibold text-ink transition-colors hover:text-brand-700 sm:py-6 sm:text-lg">
+              <h3>{item.question}</h3>
+              <span class="grid size-9 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 transition-[rotate,background-color,color] duration-300 group-open:rotate-45 group-open:bg-brand-900 group-open:text-white">
+                <Icon name="plus" size={18} />
+              </span>
+            </summary>
+            <p class="max-w-2xl pr-12 pb-6 text-[0.98rem] leading-relaxed text-muted">{item.answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

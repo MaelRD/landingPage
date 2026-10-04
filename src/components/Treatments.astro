@@ -1,0 +1,190 @@
+---
+/**
+ * Tratamientos como índice editorial.
+ * Escritorio: lista a la izquierda y panel de detalle fijo a la derecha (patrón de pestañas accesible).
+ * Móvil/tablet: cada tratamiento se muestra como tarjeta completa, sin interacción extra.
+ */
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import SectionHeading from './ui/SectionHeading.astro';
+import { serviceInquiryMessage, whatsappUrl } from '@/lib/whatsapp';
+import type { SectionCopy, Service } from '@/types';
+
+interface Props extends SectionCopy {
+  items: Service[];
+  cta: string;
+}
+
+const { items, cta, ...heading } = Astro.props;
+---
+
+<section id="tratamientos" aria-labelledby="tratamientos-title" class="section-y">
+  <div class="container-page">
+    <SectionHeading id="tratamientos-title" {...heading} />
+
+    <div class="mt-12 lg:mt-16 lg:grid lg:grid-cols-[1.1fr_1fr] lg:gap-14 xl:gap-20" data-treatments>
+      <!-- Índice (solo escritorio) -->
+      <div class="hidden border-t border-ink/10 lg:block" data-stagger role="tablist" aria-orientation="vertical" aria-label="Tratamientos">
+        {
+          items.map((item, index) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${item.id}`}
+              aria-controls={`panel-${item.id}`}
+              aria-selected={index === 0 ? 'true' : 'false'}
+              tabindex={index === 0 ? 0 : -1}
+              data-tab
+              data-animate="left"
+              class="group flex w-full items-center gap-6 border-b border-ink/10 py-6 text-left transition-colors outline-none focus-visible:bg-white/60"
+            >
+              <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-white text-brand-700 ring-1 ring-ink/8 transition-colors duration-300 group-aria-selected:bg-brand-50">
+                <Icon name={item.icon} size={20} />
+              </span>
+              <span class="flex-1 font-display text-[1.6rem] leading-tight font-semibold tracking-[-0.03em] text-ink/60 transition-[color,translate] duration-300 ease-(--ease-out-soft) group-hover:text-ink group-aria-selected:translate-x-2 group-aria-selected:text-ink">
+                {item.title}
+              </span>
+              <span class="hidden text-xs font-semibold tracking-wide text-accent-700 uppercase opacity-0 transition-opacity group-aria-selected:opacity-100 xl:block">
+                {item.highlight}
+              </span>
+              <span class="grid size-10 place-items-center rounded-full ring-1 ring-ink/10 transition-all duration-300 group-aria-selected:bg-brand-900 group-aria-selected:text-white group-aria-selected:ring-brand-900">
+                <Icon name="arrow-right" size={16} />
+              </span>
+            </button>
+          ))
+        }
+      </div>
+
+      <!-- Paneles: tarjetas en móvil, panel fijo en escritorio -->
+      <div class="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:sticky lg:top-28 lg:block lg:self-start" data-stagger>
+        {
+          items.map((item, index) => (
+            <div
+              id={`panel-${item.id}`}
+              data-panel
+              data-animate
+              data-active={index === 0 ? '' : undefined}
+              aria-labelledby={`title-${item.id}`}
+              class="relative flex flex-col overflow-hidden rounded-4xl bg-white p-6 ring-1 ring-ink/8 sm:p-7 lg:min-h-[32rem] lg:p-10 lg:not-data-active:hidden lg:data-active:motion-safe:animate-fade-up"
+            >
+              <span
+                aria-hidden="true"
+                class="pointer-events-none absolute -top-10 -right-10 text-brand-50 lg:-top-16 lg:-right-16"
+              >
+                <Icon name={item.icon} size={220} class="stroke-[0.6] lg:size-[340px]" />
+              </span>
+
+              <div class="relative flex items-center gap-3">
+                <span class="grid size-12 place-items-center rounded-2xl bg-brand-900 text-white">
+                  <Icon name={item.icon} size={24} />
+                </span>
+                <span class="rounded-full bg-accent-50 px-3 py-1 text-xs font-semibold text-accent-700 ring-1 ring-accent-100">
+                  {item.highlight}
+                </span>
+              </div>
+
+              <h3
+                id={`title-${item.id}`}
+                class="relative mt-6 font-display text-2xl font-bold tracking-[-0.03em] text-ink sm:text-[1.75rem] lg:text-[2.1rem]"
+              >
+                {item.title}
+              </h3>
+              <p class="relative mt-3 leading-relaxed text-muted lg:text-lg">{item.description}</p>
+
+              <dl class="relative mt-6 grid gap-4 border-t border-ink/8 pt-6 text-sm sm:grid-cols-2">
+                <div>
+                  <dt class="text-xs font-semibold tracking-wide text-muted uppercase">Duración</dt>
+                  <dd class="mt-1 font-medium text-ink">{item.duration}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-semibold tracking-wide text-muted uppercase">Ideal si buscas</dt>
+                  <dd class="mt-1 font-medium text-ink">{item.idealFor}</dd>
+                </div>
+              </dl>
+
+              <ul class="relative mt-6 hidden space-y-2.5 lg:block">
+                {item.includes.map((point) => (
+                  <li class="flex items-center gap-2.5 text-[0.95rem] text-ink/85">
+                    <span class="grid size-5 place-items-center rounded-full bg-accent-100 text-accent-700">
+                      <Icon name="check" size={12} class="stroke-[3]" />
+                    </span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+
+              <div class="relative mt-auto pt-7">
+                <Button
+                  href={whatsappUrl(serviceInquiryMessage(item.title))}
+                  external
+                  variant="secondary"
+                  icon="whatsapp"
+                  class="w-full sm:w-auto"
+                >
+                  {cta}
+                  <span class="sr-only"> sobre {item.title}</span>
+                </Button>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-treatments]');
+
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+    const desktop = window.matchMedia('(min-width: 1024px)');
+
+    // Los roles de pestaña solo aplican en escritorio; en móvil los paneles son tarjetas normales.
+    const syncRoles = () => {
+      panels.forEach((panel, i) => {
+        if (desktop.matches) {
+          panel.setAttribute('role', 'tabpanel');
+          panel.setAttribute('aria-labelledby', tabs[i].id);
+        } else {
+          panel.removeAttribute('role');
+          panel.setAttribute('aria-labelledby', `title-${panel.id.replace('panel-', '')}`);
+        }
+      });
+    };
+
+    const select = (index: number, focus = false) => {
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        panels[i].toggleAttribute('data-active', active);
+        // Un panel que estaba oculto nunca "entró" en pantalla: se marca como visible al activarlo.
+        if (active) panels[i].classList.add('is-in');
+      });
+      if (focus) tabs[index].focus();
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i));
+      // En escritorio, pasar el cursor también previsualiza (intención clara, sin clic).
+      tab.addEventListener('pointerenter', (event) => event.pointerType === 'mouse' && select(i));
+      tab.addEventListener('keydown', (event) => {
+        const keys: Record<string, number> = {
+          ArrowDown: (i + 1) % tabs.length,
+          ArrowUp: (i - 1 + tabs.length) % tabs.length,
+          Home: 0,
+          End: tabs.length - 1,
+        };
+        if (event.key in keys) {
+          event.preventDefault();
+          select(keys[event.key], true);
+        }
+      });
+    });
+
+    syncRoles();
+    desktop.addEventListener('change', syncRoles);
+  }
+</script>

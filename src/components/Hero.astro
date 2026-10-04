@@ -1,0 +1,182 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import RotatingBadge from './ui/RotatingBadge.astro';
+import SplitWords from './ui/SplitWords.astro';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  titleAccent?: string;
+  description: string;
+  primaryCta: { label: string; href: string };
+  secondaryCta: { label: string; href: string };
+  highlights: string[];
+  image: ImageMetadata;
+  imageAlt: string;
+  /** Conversación decorativa sobre la foto. */
+  chat: readonly { from: 'patient' | 'clinic'; text: string }[];
+  badge: string;
+  /** Nombre del negocio para la cabecera del chat. */
+  businessName: string;
+  hoursLabel: string;
+}
+
+const {
+  eyebrow,
+  title,
+  titleAccent,
+  description,
+  primaryCta,
+  secondaryCta,
+  highlights,
+  image,
+  imageAlt,
+  chat,
+  badge,
+  businessName,
+  hoursLabel,
+} = Astro.props;
+const titleWords = title.split(/\s+/).length;
+---
+
+<section id="inicio" aria-labelledby="hero-title" class="grain relative overflow-clip">
+  <!-- Fondo decorativo -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+    <div class="absolute -top-48 right-[-15%] size-[46rem] rounded-full bg-accent-100/80 blur-3xl"></div>
+    <div class="absolute bottom-0 -left-48 size-[32rem] rounded-full bg-sand-200/70 blur-3xl"></div>
+  </div>
+
+  <div
+    class="container-page grid items-center gap-14 pt-8 pb-20 sm:pt-12 lg:grid-cols-[1.08fr_1fr] lg:gap-12 lg:pt-14 lg:pb-28 xl:gap-20"
+  >
+    <!-- Texto -->
+    <div class="max-w-2xl">
+      <p
+        class="inline-flex items-center gap-2.5 rounded-full bg-white/70 py-1.5 pr-4 pl-1.5 text-[0.8rem] font-medium text-brand-800 ring-1 ring-ink/8 backdrop-blur hero-in"
+      >
+        <span class="relative grid size-6 place-items-center rounded-full bg-accent-500 text-white">
+          <span class="absolute inset-0 rounded-full bg-accent-400 motion-safe:animate-ping motion-safe:[animation-duration:2.4s]"></span>
+          <Icon name="map-pin" size={13} class="relative" />
+        </span>
+        {eyebrow}
+      </p>
+
+      <h1
+        id="hero-title"
+        aria-label={titleAccent ? `${title} ${titleAccent}` : title}
+        class="mt-7 font-display text-[clamp(2.3rem,1.4rem+4.2vw,4.6rem)] leading-[1.02] font-bold tracking-[-0.045em] text-ink"
+      >
+        <SplitWords text={title} variant="hero-word" />{' '}
+        {
+          titleAccent && (
+            <em class="relative text-brand-600 not-italic min-[420px]:whitespace-nowrap">
+              <SplitWords text={titleAccent} variant="hero-word" offset={titleWords} />
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 300 20"
+                preserveAspectRatio="none"
+                class="absolute -bottom-2 left-0 hidden h-3 w-full text-accent-400 min-[420px]:block motion-safe:[stroke-dasharray:340] motion-safe:[stroke-dashoffset:340] motion-safe:animate-[draw_1.2s_0.9s_var(--ease-out-soft)_forwards]"
+              >
+                <path d="M2 14 C 60 4, 140 4, 298 10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" />
+              </svg>
+            </em>
+          )
+        }
+      </h1>
+
+      <p class="hero-in mt-7 max-w-xl text-lg leading-relaxed text-muted sm:text-xl sm:leading-relaxed" style="--delay: 450ms">{description}</p>
+
+      <div class="hero-in mt-10 flex flex-col gap-3 sm:flex-row sm:items-center" style="--delay: 600ms">
+        <Button href={primaryCta.href} external size="lg" icon="whatsapp" class="w-full sm:w-auto">
+          {primaryCta.label}
+        </Button>
+        <Button href={secondaryCta.href} variant="secondary" size="lg" arrow class="w-full sm:w-auto">
+          {secondaryCta.label}
+        </Button>
+      </div>
+
+      <ul class="hero-in mt-10 grid gap-3 border-t border-ink/10 pt-7 text-[0.92rem] text-ink/80 sm:flex sm:flex-wrap sm:gap-x-7" style="--delay: 750ms">
+        {
+          highlights.map((item) => (
+            <li class="flex items-center gap-2.5">
+              <Icon name="check" size={16} class="stroke-[2.5] text-accent-600" />
+              {item}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- Composición visual -->
+    <div class="relative mx-auto w-full max-w-[34rem] lg:max-w-none">
+      <div
+        class="hero-arch relative aspect-[4/4.4] overflow-hidden rounded-t-[999px] rounded-b-4xl bg-sand-200 shadow-lift sm:aspect-[4/4.6] lg:aspect-[4/5]"
+      >
+        <Picture
+          src={image}
+          alt={imageAlt}
+          formats={['avif', 'webp']}
+          widths={[480, 720, 960, 1280]}
+          sizes="(min-width: 1280px) 560px, (min-width: 1024px) 45vw, 92vw"
+          loading="eager"
+          fetchpriority="high"
+          class="size-full object-cover object-[50%_30%]"
+        />
+        <div class="absolute inset-0 bg-linear-to-t from-brand-950/35 via-transparent to-transparent" aria-hidden="true"></div>
+
+        <p
+          aria-hidden="true"
+          class="absolute top-[18%] right-4 hidden items-center min-[420px]:flex gap-2 rounded-full bg-white/85 px-3.5 py-2 text-xs font-semibold text-ink shadow-soft backdrop-blur-md sm:right-6"
+        >
+          <Icon name="clock" size={14} class="text-accent-600" />
+          {hoursLabel}
+        </p>
+      </div>
+
+      <!-- Chat de ejemplo -->
+      <div
+        aria-hidden="true"
+        style="--delay: 900ms"
+        class="hero-in relative mx-3 -mt-20 rounded-3xl bg-white/90 p-3.5 shadow-lift ring-1 ring-white backdrop-blur-xl sm:absolute sm:bottom-6 sm:left-6 sm:mx-0 sm:mt-0 sm:w-80 lg:bottom-10 lg:-left-10 xl:-left-16"
+      >
+        <div class="flex items-center gap-2.5 border-b border-ink/6 pb-3">
+          <span class="grid size-9 place-items-center rounded-full bg-brand-900 text-white">
+            <Icon name="tooth" size={18} />
+          </span>
+          <span class="flex-1 leading-tight">
+            <span class="block text-sm font-semibold text-ink">{businessName}</span>
+            <span class="flex items-center gap-1.5 text-[0.7rem] text-accent-700">
+              <span class="size-1.5 rounded-full bg-accent-500"></span> en línea
+            </span>
+          </span>
+          <Icon name="whatsapp" size={18} class="text-accent-600" />
+        </div>
+        <div class="mt-3 space-y-2 text-[0.82rem] leading-snug">
+          {
+            chat.map((message, i) => (
+              <p
+                class:list={[
+                  'w-fit max-w-[88%] rounded-2xl px-3 py-2 motion-safe:animate-pop-in',
+                  message.from === 'patient'
+                    ? 'ml-auto rounded-br-md bg-accent-100 text-ink'
+                    : 'rounded-bl-md bg-sand-100 text-ink',
+                ]}
+                style={`animation-delay: ${1.4 + i * 0.9}s`}
+              >
+                {message.text}
+              </p>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Sello giratorio -->
+      <div style="--delay: 1100ms" class="hero-in absolute top-[40%] -right-3 hidden sm:block lg:top-[34%] lg:-right-14">
+        <RotatingBadge text={badge} href={primaryCta.href} label="Agendar por WhatsApp" />
+      </div>
+    </div>
+  </div>
+</section>

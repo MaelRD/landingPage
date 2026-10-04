@@ -1,0 +1,473 @@
+@import 'tailwindcss';
+
+/* Variante para estilos que solo aplican cuando JavaScript está activo (clase .js en <html>). */
+@custom-variant js (.js &);
+
+/* ------------------------------------------------------------------
+ * Tokens de diseño
+ * Cambia aquí colores, tipografías, radios y sombras de toda la página.
+ * Cada token genera utilidades de Tailwind: --color-brand-900 → bg-brand-900, text-brand-900…
+ * ------------------------------------------------------------------ */
+@theme {
+  /* Una sola familia para todo; --font-display permite separar títulos de texto si se desea. */
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Primario: azul petróleo profundo */
+  --color-brand-50: #eef6f7;
+  --color-brand-100: #d5e9ec;
+  --color-brand-200: #aed3d9;
+  --color-brand-300: #7db6c0;
+  --color-brand-400: #4e95a2;
+  --color-brand-500: #2f7887;
+  --color-brand-600: #225f6e;
+  --color-brand-700: #1c4d5a;
+  --color-brand-800: #173f4a;
+  --color-brand-900: #12303a;
+  --color-brand-950: #0b1f27;
+
+  /* Acento: aqua / menta suave */
+  --color-accent-50: #edfbf6;
+  --color-accent-100: #d2f5e9;
+  --color-accent-200: #a8ead6;
+  --color-accent-300: #6fd8bd;
+  --color-accent-400: #3bc1a0;
+  --color-accent-500: #1fa586;
+  --color-accent-600: #15846c;
+  --color-accent-700: #136a58;
+
+  /* Neutros cálidos */
+  --color-canvas: #faf8f4;
+  --color-sand-100: #f3efe7;
+  --color-sand-200: #e8e1d4;
+  --color-ink: #0b1f27;
+  --color-muted: #4b5d64;
+
+  --radius-4xl: 2rem;
+
+  --shadow-soft: 0 1px 2px rgb(11 31 39 / 0.04), 0 8px 24px -12px rgb(11 31 39 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(11 31 39 / 0.04), 0 18px 40px -16px rgb(11 31 39 / 0.22);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-spin-slow: spin 18s linear infinite;
+  --animate-pop-in: pop-in 0.6s var(--ease-out-soft) both;
+  --animate-halo: halo 3s var(--ease-out-soft) infinite;
+  --animate-fade-up: fade-up 0.8s var(--ease-out-soft) both;
+
+  @keyframes float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -6px;
+    }
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes halo {
+    0% {
+      opacity: 0.55;
+      scale: 1;
+    }
+    60%,
+    100% {
+      opacity: 0;
+      scale: 1.18 1.45;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+      scale: 0.96;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      translate: 0 16px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Base
+ * ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-200);
+    color: var(--color-brand-950);
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Utilidades de layout
+ * ------------------------------------------------------------------ */
+
+/* Contenedor con gutter fluido. Expone --gutter para elementos que sangran al borde. */
+@utility container-page {
+  --gutter: clamp(1rem, 4vw, 2rem);
+  width: 100%;
+  max-width: 78rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-y {
+  padding-block: clamp(4.5rem, 10vw, 8rem);
+}
+
+/* Textura de grano muy sutil: da calidez "impresa" a fondos planos. */
+@utility grain {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Movimiento
+ * Las animaciones solo se activan si el usuario no pidió reducir movimiento
+ * y si el navegador soporta scroll-driven animations (mejora progresiva).
+ * ------------------------------------------------------------------ */
+/*
+ * Sistema de aparición al hacer scroll (ver src/scripts/reveal.ts).
+ * Uso: data-animate="up | fade | scale | left | right | clip | words".
+ * data-stagger en un contenedor escalona a sus hijos; --delay añade retraso manual.
+ * El contenido solo se oculta cuando el script ya corrió (.reveal-ready) y no se pidió reducir movimiento.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-animate] {
+    transition:
+      opacity 0.9s var(--ease-out-soft),
+      translate 0.9s var(--ease-out-soft),
+      scale 0.9s var(--ease-out-soft),
+      clip-path 1.3s var(--ease-out-soft);
+    transition-delay: calc(var(--i, 0) * 90ms + var(--delay, 0ms));
+  }
+  .reveal-ready [data-animate]:not(.is-in) {
+    opacity: 0;
+    translate: 0 32px;
+  }
+  .reveal-ready [data-animate='fade']:not(.is-in) {
+    translate: none;
+  }
+  .reveal-ready [data-animate='scale']:not(.is-in) {
+    translate: none;
+    scale: 0.94;
+  }
+  .reveal-ready [data-animate='left']:not(.is-in) {
+    translate: -36px 0;
+  }
+  .reveal-ready [data-animate='right']:not(.is-in) {
+    translate: 36px 0;
+  }
+
+  /* Cortina: la imagen se descubre de abajo hacia arriba mientras se aleja el zoom.
+     El recorte va en los hijos: un clip-path en el elemento observado impediría detectarlo. */
+  .reveal-ready [data-animate='clip']:not(.is-in) {
+    opacity: 1;
+    translate: none;
+  }
+  .reveal-ready [data-animate='clip'] > * {
+    transition: clip-path 1.3s var(--ease-out-soft);
+    transition-delay: calc(var(--i, 0) * 90ms + var(--delay, 0ms));
+  }
+  .reveal-ready [data-animate='clip']:not(.is-in) > * {
+    clip-path: inset(100% 0 0 0 round 2rem);
+  }
+  .reveal-ready [data-animate='clip'] img {
+    transition: scale 1.8s var(--ease-out-soft);
+  }
+  .reveal-ready [data-animate='clip']:not(.is-in) img {
+    scale: 1.25;
+  }
+
+  /* Palabras que suben desde una máscara. */
+  .reveal-ready [data-animate='words']:not(.is-in) {
+    opacity: 1;
+    translate: none;
+  }
+  .reveal-ready [data-animate='words'] .word > span {
+    transition: translate 1s var(--ease-out-soft);
+    transition-delay: calc(var(--w, 0) * 55ms + var(--delay, 0ms));
+  }
+  .reveal-ready [data-animate='words']:not(.is-in) .word > span {
+    translate: 0 110%;
+  }
+
+  /* Entrada del hero al cargar (sin depender de JS para no retrasar el LCP). */
+  .hero-word > span {
+    animation: word-up 1.1s var(--ease-out-soft) both;
+    animation-delay: calc(var(--w, 0) * 70ms + 120ms);
+  }
+  .hero-in {
+    animation: fade-up 1s var(--ease-out-soft) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  .hero-arch {
+    animation: arch-in 1.6s var(--ease-out-soft) both;
+    animation-delay: 0.2s;
+  }
+  .hero-arch img {
+    animation: zoom-out 2.2s var(--ease-out-soft) both;
+    animation-delay: 0.2s;
+  }
+}
+
+/* Máscara de cada palabra (siempre presente para que el texto no cambie de layout). */
+.word,
+.hero-word {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  /* Espacio para descendentes (g, p, y). */
+  padding: 0 0.06em 0.12em;
+  margin: 0 -0.06em -0.12em;
+}
+.word > span,
+.hero-word > span {
+  display: inline-block;
+}
+
+@keyframes word-up {
+  from {
+    translate: 0 110%;
+  }
+}
+
+@keyframes arch-in {
+  from {
+    clip-path: inset(100% 0 0 0 round 999px 999px 2rem 2rem);
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 999px 999px 2rem 2rem);
+  }
+}
+
+@keyframes zoom-out {
+  from {
+    scale: 1.3;
+  }
+}
+
+/* Barra de progreso de lectura (scroll-driven; sin soporte simplemente no aparece). */
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    transform-origin: 0 50%;
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  .scroll-progress {
+    display: none;
+  }
+}
+@keyframes progress {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+/* Brillo que cruza los botones al pasar el cursor. */
+.btn-shine {
+  overflow: hidden;
+}
+.btn-shine::after {
+  --shine: rgb(255 255 255 / 0.35);
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, var(--shine) 50%, transparent 65%);
+  translate: -110% 0;
+  pointer-events: none;
+}
+.bg-white.btn-shine::after {
+  --shine: rgb(31 165 134 / 0.18);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .btn-shine:hover::after {
+    translate: 110% 0;
+    transition: translate 0.8s var(--ease-out-soft);
+  }
+}
+
+/* Parallax sutil de imágenes dentro de su marco (solo con soporte de scroll-driven animations). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-parallax] {
+      animation: parallax linear both;
+      animation-timeline: view();
+      scale: 1.12;
+    }
+  }
+}
+
+@keyframes parallax {
+  from {
+    translate: 0 -5%;
+  }
+  to {
+    translate: 0 5%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Acordeón (FAQ) con <details> nativo + apertura animada donde se soporta
+ * ------------------------------------------------------------------ */
+.faq-item {
+  interpolate-size: allow-keywords;
+}
+
+.faq-item summary {
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 0.35s var(--ease-out-soft),
+    content-visibility 0.35s allow-discrete;
+}
+
+.faq-item[open]::details-content {
+  block-size: auto;
+}
+
+/* ------------------------------------------------------------------
+ * Controles de formulario
+ * font-size ≥ 16px evita el zoom automático de iOS al enfocar.
+ * ------------------------------------------------------------------ */
+@utility form-control {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 0.875rem;
+  background-color: var(--color-white);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-ink);
+  box-shadow: inset 0 0 0 1px rgb(11 31 39 / 0.14);
+  transition:
+    box-shadow 0.2s,
+    background-color 0.2s;
+  appearance: none;
+
+  &::placeholder {
+    color: rgb(75 93 100 / 0.7);
+  }
+  &:hover {
+    box-shadow: inset 0 0 0 1px rgb(11 31 39 / 0.28);
+  }
+  &:focus {
+    outline: none;
+    box-shadow:
+      inset 0 0 0 1.5px var(--color-brand-600),
+      0 0 0 4px rgb(47 120 135 / 0.15);
+  }
+  &[aria-invalid='true'] {
+    background-color: #fffafa;
+    box-shadow: inset 0 0 0 1.5px var(--color-red-700);
+  }
+  &[aria-invalid='true']:focus {
+    box-shadow:
+      inset 0 0 0 1.5px var(--color-red-700),
+      0 0 0 4px rgb(185 28 28 / 0.12);
+  }
+}

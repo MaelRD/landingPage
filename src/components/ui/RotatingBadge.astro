@@ -1,0 +1,39 @@
+---
+/** Sello circular con texto giratorio y un CTA en el centro. Para posicionarlo, envuélvelo en un contenedor. */
+import Icon from './Icon.astro';
+
+interface Props {
+  text: string;
+  href: string;
+  /** Nombre accesible del enlace. */
+  label: string;
+  class?: string;
+}
+
+const { text, href, label, class: className } = Astro.props;
+const id = `badge-path-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener"
+  class:list={['group relative grid size-32 place-items-center rounded-full bg-brand-950 text-white shadow-lift lg:size-36', className]}
+>
+  <span class="sr-only">{label} (se abre en una pestaña nueva)</span>
+  <svg viewBox="0 0 120 120" class="absolute inset-0 size-full motion-safe:animate-spin-slow" aria-hidden="true">
+    <defs>
+      <path id={id} d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"></path>
+    </defs>
+    <text class="fill-white/85 text-[9px] font-medium uppercase">
+      <!-- textLength reparte el texto exactamente en la circunferencia (2π·44 ≈ 276). -->
+      <textPath href={`#${id}`} textLength="274" lengthAdjust="spacing">{text}</textPath>
+    </text>
+  </svg>
+  <span
+    class="relative grid size-12 place-items-center rounded-full bg-accent-500 transition-transform duration-300 ease-(--ease-out-soft) group-hover:scale-110"
+    aria-hidden="true"
+  >
+    <Icon name="whatsapp" size={22} />
+  </span>
+</a>

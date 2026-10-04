@@ -1,0 +1,36 @@
+---
+/**
+ * Franja de confianza en movimiento continuo.
+ * La lista real es la primera; la copia existe solo para el bucle visual y se oculta a lectores de pantalla.
+ * Con movimiento reducido, la franja queda estática y se puede desplazar.
+ */
+import Icon from './ui/Icon.astro';
+import type { Feature } from '@/types';
+
+interface Props {
+  items: Feature[];
+}
+
+const { items } = Astro.props;
+---
+
+<section aria-label="Por qué confiar en nosotros" class="overflow-hidden bg-brand-950 py-5 text-white sm:py-6">
+  <div
+    class="group flex w-max motion-safe:animate-marquee hover:[animation-play-state:paused] motion-reduce:w-auto motion-reduce:overflow-x-auto"
+  >
+    {
+      [0, 1].map((copy) => (
+        <ul class="flex shrink-0 items-center" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {items.map((item) => (
+            <li class="flex items-center gap-3 px-6 sm:px-9">
+              <Icon name={item.icon} size={20} class="text-accent-300" />
+              <span class="font-display text-base font-semibold whitespace-nowrap sm:text-lg">{item.title}</span>
+              <span class="text-sm whitespace-nowrap text-brand-100/60">{item.description}</span>
+              <Icon name="sparkles" size={14} class="ml-6 text-white/25 sm:ml-9" />
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</section>

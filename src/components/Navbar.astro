@@ -1,0 +1,150 @@
+---
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import Logo from './ui/Logo.astro';
+import type { NavLink } from '@/types';
+
+interface Props {
+  links: readonly NavLink[];
+  ctaLabel: string;
+  ctaHref: string;
+  /** Texto auxiliar dentro del menú móvil (p. ej. horario). */
+  menuNote?: string;
+}
+
+const { links, ctaLabel, ctaHref, menuNote } = Astro.props;
+---
+
+<header
+  data-header
+  class="group/header sticky top-0 z-50 border-b border-transparent transition-[border-color,box-shadow] duration-300 data-scrolled:border-ink/8 data-scrolled:shadow-[0_8px_24px_-16px_rgb(11_31_39/0.18)]"
+>
+  <!-- El desenfoque va en una capa aparte: backdrop-filter en el <header> rompería el panel fijo del menú. -->
+  <div class="absolute inset-0 -z-10 bg-canvas/80 backdrop-blur-xl group-data-menu-open/header:bg-canvas" aria-hidden="true"></div>
+  <!-- Progreso de lectura -->
+  <div
+    class="scroll-progress absolute inset-x-0 -bottom-px h-0.5 origin-left bg-linear-to-r from-accent-400 via-accent-500 to-brand-500"
+    aria-hidden="true"
+  >
+  </div>
+  <div class="container-page flex h-16 items-center justify-between gap-3 lg:h-[4.75rem]">
+    <a href="/#inicio" class="-m-1 rounded-xl p-1" aria-label="Nova Dental, ir al inicio">
+      <Logo />
+    </a>
+
+    <nav aria-label="Principal" class="hidden lg:block">
+      <ul class="flex items-center gap-0.5">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="rounded-full px-3 py-2 text-[0.9rem] font-medium text-muted transition-colors hover:bg-ink/5 hover:text-ink xl:px-3.5"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <div class="hidden min-[360px]:block">
+        <Button href={ctaHref} external size="sm" class="lg:min-h-11 lg:px-5">
+          <span class="sm:hidden">Agendar</span><span class="hidden sm:inline">{ctaLabel}</span>
+        </Button>
+      </div>
+
+      <button
+        type="button"
+        data-menu-toggle
+        class="-mr-1.5 grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-ink/5 lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="sr-only" data-menu-label>Abrir menú</span>
+        <Icon name="menu" size={24} class="group-data-menu-open/header:hidden" />
+        <Icon name="x" size={24} class="hidden group-data-menu-open/header:block" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Menú móvil: panel a pantalla completa bajo la barra -->
+  <div
+    id="mobile-menu"
+    data-menu
+    class="invisible fixed inset-x-0 top-16 bottom-0 overflow-y-auto bg-canvas opacity-0 transition-[opacity,visibility,translate] duration-300 ease-(--ease-out-soft) -translate-y-2 group-data-menu-open/header:visible group-data-menu-open/header:translate-y-0 group-data-menu-open/header:opacity-100 lg:hidden"
+  >
+    <nav aria-label="Menú móvil" class="container-page flex min-h-full flex-col pt-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <ul class="divide-y divide-ink/8">
+        {
+          links.map((link, i) => (
+            <li
+              class="translate-y-4 opacity-0 transition-[opacity,translate] duration-500 ease-(--ease-out-soft) group-data-menu-open/header:translate-y-0 group-data-menu-open/header:opacity-100"
+              style={`transition-delay: ${80 + i * 45}ms`}
+            >
+              <a
+                href={link.href}
+                data-menu-link
+                class="flex items-center justify-between py-4 font-display text-2xl font-semibold tracking-[-0.03em] text-ink"
+              >
+                {link.label}
+                <Icon name="arrow-right" size={20} class="text-brand-400" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="mt-auto pt-10">
+        <Button href={ctaHref} external variant="whatsapp" size="lg" icon="whatsapp" class="w-full">
+          {ctaLabel} por WhatsApp
+        </Button>
+        {menuNote && <p class="mt-4 text-center text-sm text-muted">{menuNote}</p>}
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const label = header?.querySelector<HTMLElement>('[data-menu-label]');
+  const desktop = window.matchMedia('(min-width: 1024px)');
+
+  if (header && toggle && label) {
+    const setOpen = (open: boolean, { restoreFocus = true } = {}) => {
+      header.toggleAttribute('data-menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      // Mientras el menú está abierto, el resto de la página no es interactivo.
+      for (const el of document.body.children) {
+        if (el !== header && el instanceof HTMLElement) el.inert = open;
+      }
+      if (open) header.querySelector<HTMLElement>('[data-menu-link]')?.focus();
+      else if (restoreFocus) toggle.focus();
+    };
+
+    const isOpen = () => header.hasAttribute('data-menu-open');
+
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+
+    header.querySelectorAll('[data-menu-link]').forEach((link) =>
+      link.addEventListener('click', () => setOpen(false, { restoreFocus: false })),
+    );
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen()) setOpen(false);
+    });
+
+    desktop.addEventListener('change', (event) => {
+      if (event.matches && isOpen()) setOpen(false, { restoreFocus: false });
+    });
+
+    // Sombra sutil cuando la página ya no está en el tope.
+    const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>
